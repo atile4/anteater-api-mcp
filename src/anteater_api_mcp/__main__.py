@@ -1,10 +1,4 @@
-from mcp.server.mcpserver import MCPServer
-
-mcp = MCPServer("Test")
-
-def main():
-    pass
-    # mcp.run()
+from anteater_api_mcp.server import run
 
 if __name__ == "__main__":
-    main()
+    run()
