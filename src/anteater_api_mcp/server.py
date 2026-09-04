@@ -1,6 +1,5 @@
 from anteater_api_mcp.app import mcp
-
-from anteater_api_mcp.tools.retrieve_courses import get_department_courses
+import anteater_api_mcp.tools.retrieve_courses
 
 def run():
     mcp.run()
