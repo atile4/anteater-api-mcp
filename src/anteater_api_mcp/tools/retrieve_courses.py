@@ -1,27 +1,22 @@
-import requests
 from anteater_api_mcp.app import mcp
 from anteater_api_mcp.client.client import client, AnteaterAPIError
 
 from typing import Optional
 
-
 # Models
 from anteater_api_mcp.client.models import Course
 
 sample_department = "I%26C%20SCI"
-sample_take = 10
-BASE_URL = "https://anteaterapi.com/v2/rest/"
-
-
-# What courses are offered; filtered by department, school, course level, has dependencies
 
 KEEP_COLUMNS = ["department", "courseNumber", "school", "courseLevel", "title", "description"]
+# @TODO: number of courses to retrieve. 
 @mcp.tool()
 def get_courses(
     department: Optional[str] = None,
     school: Optional[str] = None,
     course_level: Optional[int] = None,
     ge_category: Optional[str] = None,
+    take: Optional[int] = 10
 ) -> list[Course]:
     """Retrieve courses matching the supplied filters.
 
@@ -42,13 +37,14 @@ def get_courses(
     school = school or None
     course_level = course_level or None
     ge_category = ge_category or None
+    take = take or 10
     try:
         data = client.get_courses(
             department=department,
             school=school,
             course_level=course_level,
             ge_category=ge_category,
-            take=sample_take,
+            take=take,
         )
     except AnteaterAPIError as e:
         return str(e)
@@ -57,3 +53,9 @@ def get_courses(
         {k: v for k, v in row.items() if k in KEEP_COLUMNS}
         for row in data
     ]
+
+#@TODO retrieve prerequisites for a course
+
+#@TODO retrieve corequisites for a course
+
+#@TODO retrieve courses that have this course as a prereq
