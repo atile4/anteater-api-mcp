@@ -7,3 +7,8 @@ class Course(BaseModel):
     description: str
     school: str
     courseLevel: str
+
+class Major(BaseModel):
+    id: str
+    name: str
+    type: str
