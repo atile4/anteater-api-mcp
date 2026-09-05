@@ -12,3 +12,6 @@ class Major(BaseModel):
     id: str
     name: str
     type: str
+    division: str
+    catalogYear: str | None = None
+    specialization: list[str] | None = None

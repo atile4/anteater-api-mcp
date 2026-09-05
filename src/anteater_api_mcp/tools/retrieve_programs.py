@@ -5,10 +5,10 @@ from typing import Optional
 
 
 # Models
-from anteater_api_mcp.client.models import Course
+from anteater_api_mcp.client.models import Major
 
 @mcp.tool()
-def get_majors():
+def get_majors() -> list[Major]:
     """Retrieve all majors.
 
     Returns:
@@ -18,7 +18,7 @@ def get_majors():
         AnteaterAPIError: If the Anteater API request fails.
     """
     try:
-        data = client._get("majors", {})
+        data = client._get("programs/majors", {})
     except AnteaterAPIError as e:
         return str(e)
 
