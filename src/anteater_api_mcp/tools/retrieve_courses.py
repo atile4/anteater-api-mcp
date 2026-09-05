@@ -6,9 +6,29 @@ from typing import Optional
 # Models
 from anteater_api_mcp.client.models import Course
 
-sample_department = "I%26C%20SCI"
 
 KEEP_COLUMNS = ["department", "courseNumber", "school", "courseLevel", "title", "description"]
+
+#@TODO include all the columns originally returned as params (true/false)
+@mcp.tool()
+def fetch_course_by_id(id: str) -> Course:
+    """Retrieve a course by its ID.
+    Args:
+        id: course id
+    Returns:
+        A course's information
+    
+    Raises:
+        AnteaterAPIError: If the Anteater API request fails.
+    """
+    try:
+        data = client.fetch_course_by_id(id=id)
+    except AnteaterAPIError as e:
+        print(str(e))
+        return str(e)
+
+    return {k: v for k, v in data.items() if k in KEEP_COLUMNS}
+
 # @TODO: number of courses to retrieve. 
 @mcp.tool()
 def get_courses(
