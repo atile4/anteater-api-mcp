@@ -9,28 +9,36 @@ from anteater_api_mcp.client.models import Course
 # Constants
 from anteater_api_mcp.constants.courses import BASE_COURSE_COLUMNS, OPTIONAL_COURSE_COLUMNS
 
+#@TODO: implement aliases so that an agent can translate a course into an id
 @mcp.tool()
 def fetch_course_by_id(id: str,
-                       instructors: bool = False,
-                       prerequisites: bool = False) -> Course:
+                       include_instructors: bool = False,
+                       include_prerequisites: bool = False,
+                       include_geList: bool = False,
+                       include_terms: bool = False) -> Course:
     """Retrieve a course by its ID.
     Args:
         id: course id
-        instructors(bool): Whether to include instructors in the response.
-        prerequisites(bool): Whether to include prerequisites in the response.
+        include_instructors(bool): Whether to include instructors in the response.
+        include_prerequisites(bool): Whether to include prerequisites in the response.
+        include_geList(bool): Whether to include general education list in the response.
+        include_terms(bool): Whether to include terms in the response.
     Returns:
-        A course's information
+        A course's details such as department, number, school, level, title, description, 
+        and optionally instructors, prerequisites, general education list, and terms.
     
     Raises:
         AnteaterAPIError: If the Anteater API request fails.
     """
     selected_options = {
-        "instructors": instructors,
-        "prerequisites": prerequisites,
+        "include_instructors": include_instructors,
+        "include_prerequisites": include_prerequisites,
+        "include_geList": include_geList,
+        "include_terms": include_terms,
     }
     keep_columns = BASE_COURSE_COLUMNS.copy()
     for option, column in OPTIONAL_COURSE_COLUMNS.items():
-        if selected_options[option]:
+        if selected_options.get(option, False):
             keep_columns.append(column)
 
     try:

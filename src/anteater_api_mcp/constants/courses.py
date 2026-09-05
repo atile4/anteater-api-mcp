@@ -7,6 +7,8 @@ BASE_COURSE_COLUMNS = [
     "description",
 ]
 OPTIONAL_COURSE_COLUMNS = {
-    "instructors": "instructors",
-    "prerequisites": "prerequisites",
+    "include_instructors": "instructors",
+    "include_prerequisites": "prerequisites",
+    "include_geList": "geList",
+    "include_terms": "terms",
 }
