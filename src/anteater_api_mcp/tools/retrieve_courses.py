@@ -7,27 +7,50 @@ from typing import Optional
 from anteater_api_mcp.client.models import Course
 
 
-KEEP_COLUMNS = ["department", "courseNumber", "school", "courseLevel", "title", "description"]
+BASE_COURSE_COLUMNS = [
+    "department",
+    "courseNumber",
+    "school",
+    "courseLevel",
+    "title",
+    "description",
+]
+OPTIONAL_COURSE_COLUMNS = {
+    "instructors": "instructors",
+    "prerequisites": "prerequisites",
+}
 
-#@TODO include all the columns originally returned as params (true/false)
 @mcp.tool()
-def fetch_course_by_id(id: str) -> Course:
+def fetch_course_by_id(id: str,
+                       instructors: bool = False,
+                       prerequisites: bool = False) -> Course:
     """Retrieve a course by its ID.
     Args:
         id: course id
+        instructors(bool): Whether to include instructors in the response.
+        prerequisites(bool): Whether to include prerequisites in the response.
     Returns:
         A course's information
     
     Raises:
         AnteaterAPIError: If the Anteater API request fails.
     """
+    selected_options = {
+        "instructors": instructors,
+        "prerequisites": prerequisites,
+    }
+    keep_columns = BASE_COURSE_COLUMNS.copy()
+    for option, column in OPTIONAL_COURSE_COLUMNS.items():
+        if selected_options[option]:
+            keep_columns.append(column)
+
     try:
         data = client.fetch_course_by_id(id=id)
     except AnteaterAPIError as e:
         print(str(e))
         return str(e)
 
-    return {k: v for k, v in data.items() if k in KEEP_COLUMNS}
+    return {k: v for k, v in data.items() if k in keep_columns}
 
 # @TODO: number of courses to retrieve. 
 @mcp.tool()
@@ -70,12 +93,8 @@ def get_courses(
         return str(e)
 
     return [
-        {k: v for k, v in row.items() if k in KEEP_COLUMNS}
+        {k: v for k, v in row.items() if k in BASE_COURSE_COLUMNS}
         for row in data
     ]
-
-#@TODO retrieve prerequisites for a course
-
-#@TODO retrieve corequisites for a course
 
 #@TODO retrieve courses that have this course as a prereq
