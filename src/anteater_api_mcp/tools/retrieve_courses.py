@@ -6,19 +6,8 @@ from typing import Optional
 # Models
 from anteater_api_mcp.client.models import Course
 
-
-BASE_COURSE_COLUMNS = [
-    "department",
-    "courseNumber",
-    "school",
-    "courseLevel",
-    "title",
-    "description",
-]
-OPTIONAL_COURSE_COLUMNS = {
-    "instructors": "instructors",
-    "prerequisites": "prerequisites",
-}
+# Constants
+from anteater_api_mcp.constants.courses import BASE_COURSE_COLUMNS, OPTIONAL_COURSE_COLUMNS
 
 @mcp.tool()
 def fetch_course_by_id(id: str,
