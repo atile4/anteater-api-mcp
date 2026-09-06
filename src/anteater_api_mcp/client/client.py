@@ -1,5 +1,8 @@
 import requests
 
+# Models
+from anteater_api_mcp.client.models import Major
+
 BASE_URL = "https://anteaterapi.com/v2/rest/"
 
 class AnteaterAPIError(Exception):
@@ -43,5 +46,15 @@ class Client:
             "geCategory": ge_category,
             "take": take
         })
+
+
+    def get_majors(self) -> list[Major]:
+        return self._get("programs/majors", {})
+
+    def get_major_course_requirements(self, id) -> list[dict]:
+        return self._get("programs/major", {
+            "programId": id
+        })
+    
 
 client = Client()

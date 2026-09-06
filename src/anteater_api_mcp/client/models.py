@@ -37,3 +37,11 @@ class Course(BaseModel):
     geList: list[str] | None = None
     geText: str | None = None
     terms: list[str] | None = None
+
+class Major(BaseModel):
+    id: str
+    name: str
+    type: str
+    division: str
+    catalogYear: str | None = None
+    specialization: list[str] | None = None
