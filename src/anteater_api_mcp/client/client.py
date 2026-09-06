@@ -1,5 +1,4 @@
 import requests
-from typing import Optional
 
 # Models
 from anteater_api_mcp.client.models import Major
@@ -28,6 +27,9 @@ class Client:
             raise AnteaterAPIError(response.get("message", "Unknown error from Anteater API"))
 
         return response["data"]
+
+    def fetch_course_by_id(self, id: str) -> dict:
+        return self._get(f"courses/{id}", {})
 
     def get_courses(
         self,
