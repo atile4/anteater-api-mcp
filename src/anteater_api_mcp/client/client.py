@@ -48,6 +48,11 @@ class Client:
 
     def get_majors(self) -> list[Major]:
         return self._get("programs/majors", {})
+
+    def get_major_course_requirements(self, id) -> list[dict]:
+        return self._get("programs/major", {
+            "programId": id
+        })
     
 
 client = Client()
