@@ -1,5 +1,4 @@
 import requests
-from typing import Optional
 
 BASE_URL = "https://anteaterapi.com/v2/rest/"
 
@@ -25,6 +24,9 @@ class Client:
             raise AnteaterAPIError(response.get("message", "Unknown error from Anteater API"))
 
         return response["data"]
+
+    def fetch_course_by_id(self, id: str) -> dict:
+        return self._get(f"courses/{id}", {})
 
     def get_courses(
         self,
