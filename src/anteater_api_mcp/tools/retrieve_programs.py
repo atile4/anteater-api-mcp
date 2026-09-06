@@ -39,3 +39,27 @@ def get_major_course_requirements(id: str) -> list[dict]:
         return str(e)
 
     return data.get("requirements")
+
+@mcp.tool()
+def get_spec_course_requirements(
+    programId: str,
+    catalogYear: Optional[str] = None
+) -> list[dict]:
+    """
+    Given a specialization id (programId) and an optional catalog year, 
+    retrieve course requirements for the specialization of that catalog year.
+    Args:
+        programId: The ID of the specialization to retrieve course requirements for.
+        catalogYear: The catalog year to retrieve course requirements for. If not provided, the latest catalog year will be used.
+    Returns:
+        A list of course requirements for the specialization of the specified catalog year.
+    """
+    try:
+        data = client.get_spec_course_requirements(programId=programId, catalogYear=catalogYear)
+    except AnteaterAPIError as e:
+        return str(e)
+
+    return data.get("requirements")
+
+
+
