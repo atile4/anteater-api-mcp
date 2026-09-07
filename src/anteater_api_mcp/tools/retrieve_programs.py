@@ -78,7 +78,7 @@ def get_minor_course_requirements(
     id: str,
     catalogYear: Optional[str] = None,
     include_ids: bool = False) -> dict:
-    """Given a minor id, retrieve course requirements for a specific minor.
+    """Given a minor id and a catalog year, retrieve course requirements for a minor during a catalog year.
 
     Args:
         id: The ID of the minor to retrieve course requirements for.
