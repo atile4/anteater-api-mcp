@@ -95,8 +95,8 @@ def get_minor_course_requirements(
     except AnteaterAPIError as e:
         return str(e)
 
-    # requirements = data.get("requirements")
-    return _clean(data, include_ids)
+    requirements = data.get("requirements")
+    return _clean(requirements, include_ids)
 
 @mcp.tool()
 def get_spec_course_requirements(
