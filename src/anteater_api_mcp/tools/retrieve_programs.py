@@ -43,18 +43,24 @@ def get_majors() -> list[Major]:
     return data
 
 @mcp.tool()
-def get_major_course_requirements(id: str) -> list[dict]:
-    """Given a major id, Retrieve course requirements for a specific major.
+def get_major_course_requirements(
+    id: str,
+    catalogYear: Optional[str] = None,
+    include_ids: bool = False) -> list[dict]:
+    """Given a major id and catalog year, retrieve course requirements for that major from that year.
 
     Args:
         id: The ID of the major to retrieve course requirements for.
+        catalogYear: The catalog year to retrieve course requirements for. If not provided, the latest catalog year will be used.
+        include_ids: If True, keep internal requirementId fields in the result. Defaults to False since these IDs are opaque and not useful for explaining requirements or building a course plan.
     """
     try:
-        data = client.get_major_course_requirements(id = id)
+        data = client.get_major_course_requirements(id = id, catalogYear = catalogYear)
     except AnteaterAPIError as e:
         return str(e)
 
-    return data.get("requirements")
+    requirements = data.get("requirements")
+    return _clean(requirements, include_ids)
 
 @mcp.tool()
 def get_minors() -> list[dict]:
@@ -77,7 +83,7 @@ def get_minors() -> list[dict]:
 def get_minor_course_requirements(
     id: str,
     catalogYear: Optional[str] = None,
-    include_ids: bool = False) -> dict:
+    include_ids: bool = False) -> list[dict]:
     """Given a minor id and a catalog year, retrieve course requirements for a minor during a catalog year.
 
     Args:

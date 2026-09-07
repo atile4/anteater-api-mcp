@@ -51,15 +51,16 @@ class Client:
     def get_majors(self) -> list[Major]:
         return self._get("programs/majors", {})
 
-    def get_major_course_requirements(self, id) -> list[dict]:
+    def get_major_course_requirements(self, id: str, catalogYear: str = None) -> list[dict]:
         return self._get("programs/major", {
-            "programId": id
+            "programId": id,
+            "catalogYear" : catalogYear
         })
     
     def get_minors(self) -> list[dict]:
         return self._get("programs/minors", {})
 
-    def get_minor_course_requirements(self, id : str, catalogYear: str = None) -> dict:
+    def get_minor_course_requirements(self, id : str, catalogYear: str = None) -> list[dict]:
         return self._get("programs/minor", {
             "programId": id,
             "catalogYear" : catalogYear
