@@ -55,6 +55,14 @@ class Client:
         return self._get("programs/major", {
             "programId": id
         })
+    
+    def get_minors(self) -> list[dict]:
+        return self._get("programs/minors", {})
+
+    def get_minor_course_requirements(self, id) -> list[dict]:
+        return self._get("programs/minor", {
+            "programId": id
+        })
 
     def get_spec_course_requirements(self, programId: str, catalogYear: str = None) -> list[dict]:
         return self._get("programs/specialization", {

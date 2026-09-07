@@ -7,6 +7,24 @@ from typing import Optional
 # Models
 from anteater_api_mcp.client.models import Major
 
+# helper
+def _clean(node, include_ids=False):
+    """Recursively strip opaque requirementId fields and null values
+    from a requirement tree, since neither adds value for explaining
+    requirements or building a course plan."""
+    if isinstance(node, dict):
+        cleaned = {}
+        for k, v in node.items():
+            if k == "requirementId" and not include_ids:
+                continue
+            if v is None:
+                continue
+            cleaned[k] = _clean(v, include_ids)
+        return cleaned
+    elif isinstance(node, list):
+        return [_clean(item, include_ids) for item in node]
+    return node
+
 @mcp.tool()
 def get_majors() -> list[Major]:
     """Retrieve all majors.
@@ -24,8 +42,6 @@ def get_majors() -> list[Major]:
 
     return data
 
-# @TODO implement get_minors
-
 @mcp.tool()
 def get_major_course_requirements(id: str) -> list[dict]:
     """Given a major id, Retrieve course requirements for a specific major.
@@ -39,6 +55,44 @@ def get_major_course_requirements(id: str) -> list[dict]:
         return str(e)
 
     return data.get("requirements")
+
+@mcp.tool()
+def get_minors() -> list[dict]:
+    """Retrieves a list of all minors in UCI.
+
+    Returns:
+        A list of all minors with their id and name.
+
+    Raises:
+        AnteaterAPIError: If the Anteater API request fails.
+    """
+    try:
+        data = client.get_minors()
+    except AnteaterAPIError as e:
+        return str(e)
+
+    return data
+
+@mcp.tool()
+def get_minor_course_requirements(id: str, include_ids: bool = False) -> list[dict]:
+    """Given a minor id, retrieve course requirements for a specific minor.
+
+    Args:
+        id: The ID of the minor to retrieve course requirements for.
+        include_ids: If True, keep internal requirementId fields in the
+            output. Defaults to False.
+
+    Returns:
+        A list of requirement nodes (label, type, course counts, and
+        course lists) with internal IDs stripped by default.
+    """
+    try:
+        data = client.get_minor_course_requirements(id=id)
+    except AnteaterAPIError as e:
+        return str(e)
+
+    requirements = data.get("requirements")
+    return _clean(requirements, include_ids)
 
 @mcp.tool()
 def get_spec_course_requirements(
@@ -88,20 +142,6 @@ def get_undergrad_requirements(id: str,
     Raises:
         AnteaterAPIError: If the Anteater API request fails.
     """
-    def _clean(node):
-        if isinstance(node, dict):
-            cleaned = {}
-            for k, v in node.items():
-                if k == "requirementId" and not include_ids:
-                    continue
-                if v is None:
-                    continue
-                cleaned[k] = _clean(v)
-            return cleaned
-        elif isinstance(node, list):
-            return [_clean(item) for item in node]
-        return node
-
     try:
         data = client.get_undergrad_requirements(id = id, catalogYear = catalogYear)
     except AnteaterAPIError as e:
