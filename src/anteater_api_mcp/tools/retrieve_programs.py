@@ -107,7 +107,8 @@ def get_minor_course_requirements(
 @mcp.tool()
 def get_spec_course_requirements(
     programId: str,
-    catalogYear: Optional[str] = None
+    catalogYear: Optional[str] = None,
+    include_ids: bool = False
 ) -> list[dict]:
     """
     Given a specialization id (programId) and an optional catalog year, 
@@ -115,6 +116,8 @@ def get_spec_course_requirements(
     Args:
         programId: The ID of the specialization to retrieve course requirements for.
         catalogYear: The catalog year to retrieve course requirements for. If not provided, the latest catalog year will be used.
+        include_ids: If True, keep internal requirementId fields in the result. Defaults to False since these IDs are opaque and not useful for explaining requirements or building a course plan.
+
     Returns:
         A list of course requirements for the specialization of the specified catalog year.
     """
@@ -123,7 +126,8 @@ def get_spec_course_requirements(
     except AnteaterAPIError as e:
         return str(e)
 
-    return data.get("requirements")
+    requirements = data.get("requirements")
+    return _clean(requirements, include_ids)
 
 
 @mcp.tool()
@@ -157,7 +161,7 @@ def get_undergrad_requirements(id: str,
     except AnteaterAPIError as e:
         return str(e)
 
-    return _clean(data)
+    return _clean(data, include_ids)
 
 
 
