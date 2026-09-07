@@ -62,4 +62,53 @@ def get_spec_course_requirements(
     return data.get("requirements")
 
 
+@mcp.tool()
+def get_undergrad_requirements(id: str, 
+                               catalogYear: Optional[str] = None, 
+                               include_ids: bool = False
+    ) -> dict:
+    """Retrieve requirements external to major/minor/specializations,
+      that are required for all undergraduate degrees.
+
+    Args:
+        id: The type of requirement
+            - "UC" for University of California requirements
+            - "GE" for general education requirements
+            - "CHC2": for Campuswide Honors Collegium 2 year requirements
+            - "CHC4": for Campuswide Honors Collegium 4 year requirements
+        include_ids: If True, keep internal requirementId fields in the
+            output. Defaults to False since these IDs are opaque and not
+            useful for explaining requirements or building a course plan.
+
+    Returns:
+        A list of all requirements with their type, catalog year, and
+        course requirements list. Internal IDs and null/unused fields are
+        stripped by default to keep the payload lean for planning tasks.
+
+    Raises:
+        AnteaterAPIError: If the Anteater API request fails.
+    """
+    def _clean(node):
+        if isinstance(node, dict):
+            cleaned = {}
+            for k, v in node.items():
+                if k == "requirementId" and not include_ids:
+                    continue
+                if v is None:
+                    continue
+                cleaned[k] = _clean(v)
+            return cleaned
+        elif isinstance(node, list):
+            return [_clean(item) for item in node]
+        return node
+
+    try:
+        data = client.get_undergrad_requirements(id = id, catalogYear = catalogYear)
+    except AnteaterAPIError as e:
+        return str(e)
+
+    return _clean(data)
+
+
+
 

@@ -61,6 +61,12 @@ class Client:
             "programId": programId,
             "catalogYear": catalogYear 
         })
+
+    def get_undergrad_requirements(self, id: str, catalogYear: str = None) -> list[dict]:
+        return self._get("programs/ugradRequirements", {
+            "id": id,
+            "catalogYear": catalogYear
+        })
     
 
 client = Client()
