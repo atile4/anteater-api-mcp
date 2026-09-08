@@ -1,6 +1,12 @@
 from anteater_api_mcp.app import mcp
 from anteater_api_mcp.client.client import client, AnteaterAPIError
+from enum import Enum
 
+class UndergradRequirementId(str, Enum):
+    UC = "UC"
+    GE = "GE"
+    CHC2 = "CHC2"
+    CHC4 = "CHC4"
 
 def normalize_course_code(code: str) -> str:
     """API course codes look like 'I&CSCI31' with no spaces. User input might
@@ -124,6 +130,8 @@ def simulate_undergrad_degree_progress(
     catalogYear: str | None = None,
     ap_scores: list[str] | None = None,
     completed_courses: list[str] | None = None,
+    chc2: bool = False,
+    chc4: bool = False,
 ) -> dict:
     """Simulate progress toward an undergraduate degree.
 
@@ -135,12 +143,17 @@ def simulate_undergrad_degree_progress(
         ap_scores: AP credit, formatted as ["Exam Full Name:Score", ...],
             e.g. ["AP Computer Science A:5", "AP Calculus BC:4"].
         completed_courses: Courses already taken, e.g. ["I&C SCI 31", "MATH 2A"].
+        chc2: If True, also check Campuswide Honors Collegium 2-year requirements.
+        chc4: If True, also check Campuswide Honors Collegium 4-year requirements.
 
     Returns:
-        A dict with "major", "specialization", and (if given) "minor" keys,
-        each containing satisfied courses and a per-requirement
-        breakdown. A top-level "warnings" key lists anything that couldn't
-        be resolved (unparseable AP entries, failed fetches, etc).
+        A dict with "major", "specialization", "ge", and (if given/requested)
+        "minor", "chc2", "chc4" keys, each containing a "satisfied" bool,
+        "completed_courses", and a per-requirement "details" breakdown.
+        Some requirement nodes (requirementType "Marker") can't be verified
+        from course/AP data and will show "satisfied": None — these need
+        manual review. A top-level "warnings" key lists anything else that
+        couldn't be resolved (unparseable AP entries, failed fetches, etc).
     """
     warnings: list[str] = []
     satisfied = {normalize_course_code(c) for c in (completed_courses or [])}
@@ -169,6 +182,26 @@ def simulate_undergrad_degree_progress(
             progress["minor"] = evaluate_requirements(minor_data.get("requirements", []), satisfied)
         except AnteaterAPIError as e:
             warnings.append(f"Failed to fetch minor requirements: {e}")
+
+    try:
+        ge_data = client.get_undergrad_requirements(id="GE", catalogYear=catalogYear)
+        progress["ge"] = evaluate_requirements(ge_data.get("requirements", []), satisfied)
+    except AnteaterAPIError as e:
+        warnings.append(f"Failed to fetch GE requirements: {e}")
+
+    if chc2:
+        try:
+            chc2_data = client.get_undergrad_requirements(id="CHC2", catalogYear=catalogYear)
+            progress["chc2"] = evaluate_requirements(chc2_data.get("requirements", []), satisfied)
+        except AnteaterAPIError as e:
+            warnings.append(f"Failed to fetch CHC2 requirements: {e}")
+
+    if chc4:
+        try:
+            chc4_data = client.get_undergrad_requirements(id="CHC4", catalogYear=catalogYear)
+            progress["chc4"] = evaluate_requirements(chc4_data.get("requirements", []), satisfied)
+        except AnteaterAPIError as e:
+            warnings.append(f"Failed to fetch CHC4 requirements: {e}")
 
     if warnings:
         progress["warnings"] = warnings
