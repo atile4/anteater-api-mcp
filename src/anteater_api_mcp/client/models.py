@@ -45,3 +45,7 @@ class Major(BaseModel):
     division: str
     catalogYear: str | None = None
     specialization: list[str] | None = None
+
+class APExam(BaseModel):
+    fullName: str
+    rewards: list[dict]
