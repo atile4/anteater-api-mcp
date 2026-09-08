@@ -71,15 +71,14 @@ def evaluate_node(node: dict, satisfied: set[str]) -> dict:
         courses = node.get("courses", [])
         needed = node.get("courseCount", len(courses))
         have = [c for c in courses if normalize_course_code(c) in satisfied]
-        missing = [c for c in courses if normalize_course_code(c) not in satisfied]
         satisfied_flag = len(have) >= needed
         return {
             "label": label,
             "type": rtype,
             "satisfied": satisfied_flag,
             "needed": needed,
+            "courses": courses,
             "completed_courses": have,
-            "missing_courses": [] if satisfied_flag else missing,
         }
 
     if rtype == "Group":
@@ -95,7 +94,6 @@ def evaluate_node(node: dict, satisfied: set[str]) -> dict:
             "needed": needed,
             "satisfied_count": len(satisfied_children),
             "completed_courses": [c for r in child_results for c in r["completed_courses"]],
-            "missing_courses": [] if satisfied_flag else [c for r in child_results for c in r["missing_courses"]],
             "children": child_results,
         }
 
@@ -105,7 +103,6 @@ def evaluate_node(node: dict, satisfied: set[str]) -> dict:
         "type": rtype,
         "satisfied": None,
         "completed_courses": [],
-        "missing_courses": [],
         "note": "Requirement type not auto-verifiable; review manually.",
     }
 
@@ -115,7 +112,6 @@ def evaluate_requirements(nodes: list[dict], satisfied: set[str]) -> dict:
     return {
         "satisfied": all(r["satisfied"] for r in results if r["satisfied"] is not None),
         "completed_courses": [c for r in results for c in r["completed_courses"]],
-        "missing_courses": [c for r in results for c in r["missing_courses"]],
         "details": results,
     }
 
@@ -142,7 +138,7 @@ def simulate_undergrad_degree_progress(
 
     Returns:
         A dict with "major", "specialization", and (if given) "minor" keys,
-        each containing satisfied/missing courses and a per-requirement
+        each containing satisfied courses and a per-requirement
         breakdown. A top-level "warnings" key lists anything that couldn't
         be resolved (unparseable AP entries, failed fetches, etc).
     """
