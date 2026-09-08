@@ -48,6 +48,51 @@ def get_course_by_id(id: str,
 
     return {k: v for k, v in data.items() if k in keep_columns}
 
+@mcp.tool()
+def get_courses_by_ids(id: list[str],
+                       include_instructors: bool = False,
+                       include_prerequisites: bool = False,
+                       include_geList: bool = False,
+                       include_terms: bool = False) -> list[Course]:
+    """Retrieve multiple courses from a list of IDs.
+    Args:
+        id: list of course ids to fetch
+        include_instructors(bool): Whether to include instructors in the response.
+        include_prerequisites(bool): Whether to include prerequisites in the response.
+        include_geList(bool): Whether to include general education list in the response.
+        include_terms(bool): Whether to include terms in the response.
+    Returns:
+        A list of courses with details such as department, number, school, level, title,
+        description, and optionally instructors, prerequisites, general education list,
+        and terms.
+    
+    Raises:
+        AnteaterAPIError: If the Anteater API request fails.
+    """
+    selected_options = {
+        "include_instructors": include_instructors,
+        "include_prerequisites": include_prerequisites,
+        "include_geList": include_geList,
+        "include_terms": include_terms,
+    }
+    keep_columns = BASE_COURSE_COLUMNS.copy()
+    for option, column in OPTIONAL_COURSE_COLUMNS.items():
+        if selected_options.get(option, False):
+            keep_columns.append(column)
+
+    courses = []
+    for course_id in id:
+        try:
+            data = client.get_course_by_id(id=course_id)
+        except AnteaterAPIError as e:
+            raise AnteaterAPIError(
+                f"Failed to fetch course by ID {course_id}: {e}"
+            ) from e
+
+        courses.append({k: v for k, v in data.items() if k in keep_columns})
+
+    return courses
+
 # @TODO: number of courses to retrieve. 
 @mcp.tool()
 def get_courses(
