@@ -2,6 +2,7 @@ import requests
 
 # Models
 from anteater_api_mcp.client.models import Major
+from anteater_api_mcp.client.models import APExam
 
 BASE_URL = "https://anteaterapi.com/v2/rest/"
 
@@ -77,6 +78,12 @@ class Client:
             "id": id,
             "catalogYear": catalogYear
         })
+
+    def get_ap_exams(self) -> list[dict]:
+        return self._get("apExams", {})
+
+    def get_ap_exam(self, fullName: str = None) -> dict:
+        return self._get("apExams", {"fullName": fullName})
     
 
 client = Client()
