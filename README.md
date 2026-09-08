@@ -1,10 +1,24 @@
 # Anteater API MCP
 
-An MCP wrapper for Anteater API
+An MCP wrapper for Anteater API. Currently in development.
 
-## Running Locally
+## Local Setup
 
-Paste this into `claude_desktop_config.json` mcpServers
+### Prerequisites
+
+- Python 3.12+
+- uv package manager
+- Node.js 18+
+
+### Running Locally
+
+Git clone into your local machine
+
+```
+git clone https://github.com/atile4/anteater-api-mcp.git
+```
+
+Paste into `claude_desktop_config.json`
 
 ```
   "mcpServers": {
@@ -20,10 +34,14 @@ Paste this into `claude_desktop_config.json` mcpServers
   }
 ```
 
-`uv run python -m anteater_api_mcp`
+To start the server, run:
+
+```
+uv run python -m anteater_api_mcp
+```
 
 ## Disclaimer
 
-All data is sourced from ICSSC's [Anteater API](https://github.com/icssc/anteater-api), which states that data retrieved from official sources may not be accurate.
+All data is sourced from ICSSC's [Anteater API](https://github.com/icssc/anteater-api). Data retrieved from may not be 100% accurate, make sure to double-check for important information.
 
 This project has no affiliation with Anteater API.
