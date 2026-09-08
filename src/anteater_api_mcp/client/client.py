@@ -29,7 +29,7 @@ class Client:
 
         return response["data"]
 
-    def fetch_course_by_id(self, id: str) -> dict:
+    def get_course_by_id(self, id: str) -> dict:
         return self._get(f"courses/{id}", {})
 
     def get_courses(

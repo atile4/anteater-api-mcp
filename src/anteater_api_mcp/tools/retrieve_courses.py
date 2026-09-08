@@ -11,7 +11,7 @@ from anteater_api_mcp.constants.courses import BASE_COURSE_COLUMNS, OPTIONAL_COU
 
 #@TODO: implement aliases so that an agent can translate a course into an id
 @mcp.tool()
-def fetch_course_by_id(id: str,
+def get_course_by_id(id: str,
                        include_instructors: bool = False,
                        include_prerequisites: bool = False,
                        include_geList: bool = False,
@@ -42,10 +42,9 @@ def fetch_course_by_id(id: str,
             keep_columns.append(column)
 
     try:
-        data = client.fetch_course_by_id(id=id)
+        data = client.get_course_by_id(id=id)
     except AnteaterAPIError as e:
-        print(str(e))
-        return str(e)
+        raise AnteaterAPIError(f"Failed to fetch course by ID {id}: {e}") from e
 
     return {k: v for k, v in data.items() if k in keep_columns}
 
