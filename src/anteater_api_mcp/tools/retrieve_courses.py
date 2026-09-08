@@ -10,6 +10,7 @@ from anteater_api_mcp.client.models import Course
 from anteater_api_mcp.constants.courses import BASE_COURSE_COLUMNS, OPTIONAL_COURSE_COLUMNS
 
 #@TODO: implement aliases so that an agent can translate a course into an id
+#@TODO: include field for typical offerings (derived from terms if chosen to be included, only include past 5 years)
 @mcp.tool()
 def get_course_by_id(id: str,
                        include_instructors: bool = False,
@@ -20,7 +21,7 @@ def get_course_by_id(id: str,
     Args:
         id: course id
         include_instructors(bool): Whether to include instructors in the response.
-        include_prerequisites(bool): Whether to include prerequisites in the response.
+        include_prerequisites(bool): Whether to include course prerequisites in the response.
         include_geList(bool): Whether to include general education list in the response.
         include_terms(bool): Whether to include historic terms (such as 2024 Fall, 2026 Winter) in the response.
     Returns:
@@ -41,6 +42,8 @@ def get_course_by_id(id: str,
         if selected_options.get(option, False):
             keep_columns.append(column)
 
+    if (include_prerequisites): keep_columns.append("prerequisiteText")
+
     try:
         data = client.get_course_by_id(id=id)
     except AnteaterAPIError as e:
@@ -58,7 +61,7 @@ def get_courses_by_ids(id: list[str],
     Args:
         id: list of course ids to fetch
         include_instructors(bool): Whether to include instructors in the response.
-        include_prerequisites(bool): Whether to include prerequisites in the response.
+        include_prerequisites(bool): Whether to include course prerequisites in the response.
         include_geList(bool): Whether to include general education list in the response.
         include_terms(bool): Whether to include historic terms (such as 2024 Fall, 2026 Winter) in the response.
     Returns:
@@ -79,6 +82,8 @@ def get_courses_by_ids(id: list[str],
     for option, column in OPTIONAL_COURSE_COLUMNS.items():
         if selected_options.get(option, False):
             keep_columns.append(column)
+
+    if (include_prerequisites): keep_columns.append("prerequisiteText")
 
     courses = []
     for course_id in id:
