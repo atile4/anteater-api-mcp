@@ -22,7 +22,7 @@ def get_course_by_id(id: str,
         include_instructors(bool): Whether to include instructors in the response.
         include_prerequisites(bool): Whether to include prerequisites in the response.
         include_geList(bool): Whether to include general education list in the response.
-        include_terms(bool): Whether to include terms in the response.
+        include_terms(bool): Whether to include historic terms (such as 2024 Fall, 2026 Winter) in the response.
     Returns:
         A course's details such as department, number, school, level, title, description, 
         and optionally instructors, prerequisites, general education list, and terms.
@@ -60,7 +60,7 @@ def get_courses_by_ids(id: list[str],
         include_instructors(bool): Whether to include instructors in the response.
         include_prerequisites(bool): Whether to include prerequisites in the response.
         include_geList(bool): Whether to include general education list in the response.
-        include_terms(bool): Whether to include terms in the response.
+        include_terms(bool): Whether to include historic terms (such as 2024 Fall, 2026 Winter) in the response.
     Returns:
         A list of courses with details such as department, number, school, level, title,
         description, and optionally instructors, prerequisites, general education list,
