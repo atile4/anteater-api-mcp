@@ -4,7 +4,7 @@ from anteater_api_mcp.client.client import client, AnteaterAPIError
 from typing import Optional
 
 # Models
-from anteater_api_mcp.client.models import Course
+from anteater_api_mcp.client.models import CourseSearchResult
 
 # Constants
 from anteater_api_mcp.constants.courses import BASE_COURSE_COLUMNS, OPTIONAL_COURSE_COLUMNS
@@ -14,7 +14,6 @@ from anteater_api_mcp.utils import normalize_course_code
 
 #@TODO: implement aliases so that an agent can translate a course into an id
 #@TODO: include field for typical offerings (derived from terms if chosen to be included, only include past 5 years)
-# @TODO: number of courses to retrieve with defaults. 
 @mcp.tool()
 def get_courses(
     ids: Optional[list[str]] = None,
@@ -27,7 +26,7 @@ def get_courses(
     include_prerequisites: bool = False,
     include_geList: bool = False,
     include_terms: bool = False,
-) -> list[Course]:
+) -> CourseSearchResult:
     """Retrieve courses, either by specific IDs or by filter.
 
     If `ids` is provided, fetches exactly those courses (one lookup per ID).
@@ -56,10 +55,10 @@ def get_courses(
             2026 Winter) in the response.
 
     Returns:
-        A list of courses. If any requested `ids` weren't found (the batch
-        endpoint returns 200 ok even when some IDs don't resolve), instead
-        returns a dict {"data": [...], "warnings": [...]} noting which IDs
-        were missing.
+        A CourseSearchResult with `data` (the found courses, using the
+        requested filter columns) and `warnings` (non-empty only if some
+        requested `ids` weren't found — the batch endpoint returns 200 ok
+        with those silently dropped rather than erroring).
 
     Raises:
         AnteaterAPIError: If the Anteater API request fails.
@@ -88,13 +87,9 @@ def get_courses(
         missing = requested - returned
 
         courses = [{k: v for k, v in row.items() if k in keep_columns} for row in data]
+        warnings = [f"No course found for ID(s): {', '.join(sorted(missing))}"] if missing else []
 
-        if missing:
-            return {
-                "data": courses,
-                "warnings": [f"No course found for ID(s): {', '.join(sorted(missing))}"],
-            }
-        return courses
+        return CourseSearchResult(data=courses, warnings=warnings)
 
     try:
         data = client.get_courses(
@@ -107,4 +102,5 @@ def get_courses(
     except AnteaterAPIError as e:
         raise AnteaterAPIError(f"Failed to fetch courses: {e}") from e
 
-    return [{k: v for k, v in row.items() if k in keep_columns} for row in data]
+    courses = [{k: v for k, v in row.items() if k in keep_columns} for row in data]
+    return CourseSearchResult(data=courses, warnings=[])

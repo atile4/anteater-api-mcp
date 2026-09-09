@@ -38,6 +38,11 @@ class Course(BaseModel):
     geText: str | None = None
     terms: list[str] | None = None
 
+
+class CourseSearchResult(BaseModel):
+    data: list[Course]
+    warnings: list[str] = []
+
 class Major(BaseModel):
     id: str
     name: str
