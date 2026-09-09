@@ -79,7 +79,7 @@ class Client:
             "catalogYear": catalogYear
         })
 
-    def get_ap_exams(self) -> list[dict]:
+    def get_ap_exam_list(self) -> list[dict]:
         return self._get("apExams", {})
 
     def get_ap_exam(self, fullName: str = None) -> dict:
