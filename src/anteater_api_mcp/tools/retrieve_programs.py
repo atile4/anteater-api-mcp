@@ -51,8 +51,11 @@ def get_major_course_requirements(
 
     Args:
         id: The ID of the major to retrieve course requirements for.
-        catalogYear: The catalog year to retrieve course requirements for. If not provided, the latest catalog year will be used.
+        catalogYear: The catalog year to retrieve course requirements for. If not provided, by default the API will use the most recent catalog year.
         include_ids: If True, keep internal requirementId fields in the result. Defaults to False since these IDs are opaque and not useful for explaining requirements or building a course plan.
+    Returns:
+        A list of requirement nodes (label, type, course counts, and
+        course lists) with internal IDs stripped by default.
     """
     try:
         data = client.get_major_course_requirements(id = id, catalogYear = catalogYear)
@@ -87,9 +90,9 @@ def get_minor_course_requirements(
     """Given a minor id and a catalog year, retrieve course requirements for a minor during a catalog year.
 
     Args:
-        id: The ID of the minor to retrieve course requirements for.
-        catalogYear: The catalog year to retrieve course requirements for. If not provided, the latest catalog year will be used.
-        include_ids: If True, keep internal requirementId fields in the
+        id(str): The ID of the minor to retrieve course requirements for.
+        catalogYear(str): The catalog year to retrieve course requirements for. If not provided, by default the API will use the most recent catalog year.
+        include_ids(bool): If True, keep internal requirementId fields in the
             output. Defaults to False.
 
     Returns:
@@ -114,9 +117,9 @@ def get_spec_course_requirements(
     Given a specialization id (programId) and an optional catalog year, 
     retrieve course requirements for the specialization of that catalog year.
     Args:
-        programId: The ID of the specialization to retrieve course requirements for.
-        catalogYear: The catalog year to retrieve course requirements for. If not provided, the latest catalog year will be used.
-        include_ids: If True, keep internal requirementId fields in the result. Defaults to False since these IDs are opaque and not useful for explaining requirements or building a course plan.
+        programId(str): The ID of the specialization to retrieve course requirements for.
+        catalogYear(str): The catalog year to retrieve course requirements for. If not provided, by default the API will use the most recent catalog year.
+        include_ids(bool): If True, keep internal requirementId fields in the result. Defaults to False since these IDs are opaque and not useful for explaining requirements or building a course plan.
 
     Returns:
         A list of course requirements for the specialization of the specified catalog year.
@@ -139,12 +142,13 @@ def get_undergrad_requirements(id: str,
       that are required for all undergraduate degrees.
 
     Args:
-        id: The type of requirement
+        id(str): The type of requirement
             - "UC" for University of California requirements
             - "GE" for general education requirements
             - "CHC2": for Campuswide Honors Collegium 2 year requirements
-            - "CHC4": for Campuswide Honors Collegium 4 year requirements
-        include_ids: If True, keep internal requirementId fields in the
+            - "CHC4": for Campuswide Honors Collegium 4 year 
+        catalogYear(str): The catalog year to retrieve course requirements for. If not provided, by default the API will use the most recent catalog year.
+        include_ids(bool): If True, keep internal requirementId fields in the
             output. Defaults to False since these IDs are opaque and not
             useful for explaining requirements or building a course plan.
 

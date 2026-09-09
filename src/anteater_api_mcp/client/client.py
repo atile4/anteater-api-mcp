@@ -29,7 +29,7 @@ class Client:
 
         return response["data"]
 
-    def fetch_course_by_id(self, id: str) -> dict:
+    def get_course_by_id(self, id: str) -> dict:
         return self._get(f"courses/{id}", {})
 
     def get_courses(
@@ -79,7 +79,7 @@ class Client:
             "catalogYear": catalogYear
         })
 
-    def get_ap_exams(self) -> list[dict]:
+    def get_ap_exam_list(self) -> list[dict]:
         return self._get("apExams", {})
 
     def get_ap_exam(self, fullName: str = None) -> dict:
