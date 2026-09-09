@@ -1,7 +1,7 @@
 from anteater_api_mcp.app import mcp
 import anteater_api_mcp.tools.retrieve_courses
 import anteater_api_mcp.tools.retrieve_programs
-import anteater_api_mcp.tools.retrieve_ap_exams
+import anteater_api_mcp.tools.ap_exams
 import anteater_api_mcp.tools.degree_process
 
 def run():
