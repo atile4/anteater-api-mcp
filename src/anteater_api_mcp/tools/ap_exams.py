@@ -13,7 +13,7 @@ def remove_catalogue_name(item: dict) -> dict:
 
 
 @mcp.tool()
-def get_ap_exams(fullName: Optional[list[str]] = None):
+def get_ap_exams(names: Optional[list[str]] = None):
     """Retrieve AP exam credit info.
 
     Args:
@@ -28,14 +28,14 @@ def get_ap_exams(fullName: Optional[list[str]] = None):
     Raises:
         AnteaterAPIError: If the Anteater API request fails.
     """
-    fullName = fullName or []
+    names = names or []
 
     try:
-        if not fullName:
+        if not names:
             data = client.get_ap_exam_list()
         else:
             data = []
-            for name in fullName:
+            for name in names:
                 data.extend(client.get_ap_exam(fullName=name))
     except AnteaterAPIError as e:
         return str(e)
