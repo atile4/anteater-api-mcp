@@ -25,41 +25,39 @@ def extract_courses_from_boolean_tree(node) -> set[str]:
     return set()
 
 
-def _resolve_ap_credit(ap_scores: list[str]) -> tuple[set[str], list[str]]:
-    """Parses entries formatted as 'Exam Full Name:Score', e.g.
-    'AP Computer Science A:5'. Entries that don't match this format are
-    skipped with a warning rather than guessed, since assuming a score
-    could silently over-credit a degree audit."""
+def _resolve_ap_credit(ap_scores: dict[str, int]) -> tuple[set[str], list[str]]:
+    """Resolve catalogue AP exam names and scores into credited courses."""
     credited = set()
     warnings = []
 
-    for entry in ap_scores:
-        if ":" not in entry:
-            warnings.append(
-                f"Skipped '{entry}': expected format 'Exam Full Name:Score'."
-            )
+    try:
+        exam_records = client.get_ap_exam_list()
+    except AnteaterAPIError as e:
+        return credited, [f"Could not fetch AP exam list: {e}"]
+
+    exams_by_catalogue_name = {
+        exam.get("catalogueName", "").strip().upper(): exam
+        for exam in exam_records
+        if exam.get("catalogueName")
+    }
+
+    for name, score in ap_scores.items():
+        exam = exams_by_catalogue_name.get(name.strip().upper())
+        if exam is None:
+            warnings.append(f"Could not find AP exam with catalogue name '{name}'.")
             continue
 
-        name, _, score_str = entry.rpartition(":")
-        name = name.strip()
         try:
-            score = int(score_str.strip())
-        except ValueError:
-            warnings.append(f"Skipped '{entry}': score is not a number.")
+            score = int(score)
+        except (TypeError, ValueError):
+            warnings.append(f"Skipped '{name}': score is not a number.")
             continue
 
-        try:
-            exam_records = client.get_ap_exam(fullName=name)
-        except AnteaterAPIError as e:
-            warnings.append(f"Could not fetch AP exam '{name}': {e}")
-            continue
-
-        for exam in exam_records:
-            for reward in exam.get("rewards", []):
-                if score in reward.get("acceptableScores", []):
-                    credited |= extract_courses_from_boolean_tree(
-                        reward.get("coursesGranted", {})
-                    )
+        for reward in exam.get("rewards", []):
+            if score in reward.get("acceptableScores", []):
+                credited |= extract_courses_from_boolean_tree(
+                    reward.get("coursesGranted", {})
+                )
 
     return credited, warnings
 
@@ -125,7 +123,7 @@ def simulate_undergrad_degree_progress(
     specializationId: str | None = None,
     minorId: str | None = None,
     catalogYear: str | None = None,
-    ap_scores: list[str] | None = None,
+    ap_scores: dict[str, int] | None = None,
     completed_courses: list[str] | None = None,
     chc2: bool = False,
     chc4: bool = False,
@@ -137,8 +135,8 @@ def simulate_undergrad_degree_progress(
         specializationId: The specialization/program ID to check requirements for.
         minorId: Optional minor ID to check requirements for.
         catalogYear: Catalog year to use; defaults to the API's most recent.
-        ap_scores: AP credit, formatted as ["Exam Full Name:Score", ...],
-            e.g. ["AP Computer Science A:5", "AP Calculus BC:4"].
+        ap_scores: AP credit, formatted as {"Catalogue Exam Name": score},
+            e.g. {"AP Computer Science A": 5, "AP Calculus BC": 4}.
         completed_courses: Courses already taken, e.g. ["I&C SCI 31", "MATH 2A"].
         chc2: If True, also check Campuswide Honors Collegium 2-year requirements.
         chc4: If True, also check Campuswide Honors Collegium 4-year requirements.
@@ -150,7 +148,8 @@ def simulate_undergrad_degree_progress(
         Some requirement nodes (requirementType "Marker") can't be verified
         from course/AP data and will show "satisfied": None — these need
         manual review. A top-level "warnings" key lists anything else that
-        couldn't be resolved (unparseable AP entries, failed fetches, etc).
+        couldn't be resolved (unknown AP names, invalid scores, failed fetches,
+        etc).
     """
     warnings: list[str] = []
     satisfied = {normalize_course_code(c) for c in (completed_courses or [])}

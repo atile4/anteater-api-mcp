@@ -58,7 +58,7 @@ def _evaluate_prereq_node(node, satisfied: set[str], ap_scores: dict[str, int]) 
         courses that are disqualifying (from a NOT branch).
       - met=None:  couldn't be determined (e.g. an exam leaf with no score
         provided). Same "don't guess" philosophy as evaluate_node's
-        handling of unknown requirement types in degree_process.py.
+        handling of unknown requirement types in degree_progress.py.
     """
     if not node:
         return {"met": True, "missing": [], "blocked_by": []}
@@ -120,7 +120,7 @@ def check_course_eligibility(
     eligible yet. Plain function, not an MCP tool -- see
     check_course_eligibility_tool for the tool wrapper. Kept separate so
     other tools (e.g. simulate_undergrad_degree_progress in
-    degree_process.py) can reuse this without going through a tool call.
+    degree_progress.py) can reuse this without going through a tool call.
 
     Args:
         course_ids: Course IDs to check eligibility for. Accepts spaced
