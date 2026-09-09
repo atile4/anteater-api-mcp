@@ -32,6 +32,9 @@ class Client:
     def get_course_by_id(self, id: str) -> dict:
         return self._get(f"courses/{id}", {})
 
+    def get_courses_batch(self, ids: list[str]) -> list[dict]:
+        return self._get("courses/batch", {"ids": ",".join(ids)})
+
     def get_courses(
         self,
         department: str = None,

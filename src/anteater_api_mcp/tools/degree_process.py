@@ -2,17 +2,14 @@ from anteater_api_mcp.app import mcp
 from anteater_api_mcp.client.client import client, AnteaterAPIError
 from enum import Enum
 
+# utils
+from anteater_api_mcp.utils import normalize_course_code
+
 class UndergradRequirementId(str, Enum):
     UC = "UC"
     GE = "GE"
     CHC2 = "CHC2"
     CHC4 = "CHC4"
-
-def normalize_course_code(code: str) -> str:
-    """API course codes look like 'I&CSCI31' with no spaces. User input might
-    come in as 'I&C SCI 31' or lowercase, so we normalize both sides the same way."""
-    return code.upper().replace(" ", "")
-
 
 def extract_courses_from_boolean_tree(node) -> set[str]:
     """Flattens an AND/OR coursesGranted tree into a flat set of course codes.
