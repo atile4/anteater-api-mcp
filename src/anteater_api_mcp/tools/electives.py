@@ -94,10 +94,6 @@ def _evaluate_prereq_node(node, satisfied: set[str], ap_scores: dict[str, int]) 
         return {"met": False, "missing": best["missing"], "blocked_by": best["blocked_by"]}
 
     if isinstance(node, dict) and "NOT" in node:
-        # INFERRED SEMANTICS (not confirmed against official docs): a NOT
-        # block is a catalog overlap restriction -- "must not have already
-        # completed any of these." Verify against the UCI Catalogue text
-        # for a course that has one before trusting this in production.
         items = node["NOT"]
         results = [_evaluate_prereq_node(c, satisfied, ap_scores) for c in items]
         violated = [_describe_leaf(item) for item, r in zip(items, results) if r["met"]]
