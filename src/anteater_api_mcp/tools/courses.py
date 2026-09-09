@@ -9,6 +9,9 @@ from anteater_api_mcp.client.models import Course
 # Constants
 from anteater_api_mcp.constants.courses import BASE_COURSE_COLUMNS, OPTIONAL_COURSE_COLUMNS
 
+# utils
+from anteater_api_mcp.utils import normalize_course_code
+
 #@TODO: implement aliases so that an agent can translate a course into an id
 #@TODO: include field for typical offerings (derived from terms if chosen to be included, only include past 5 years)
 # @TODO: number of courses to retrieve with defaults. 
@@ -53,9 +56,10 @@ def get_courses(
             2026 Winter) in the response.
 
     Returns:
-        A list of courses with department, number, school, level, title,
-        description, and optionally instructors, prerequisites, general
-        education list, and terms.
+        A list of courses. If any requested `ids` weren't found (the batch
+        endpoint returns 200 ok even when some IDs don't resolve), instead
+        returns a dict {"data": [...], "warnings": [...]} noting which IDs
+        were missing.
 
     Raises:
         AnteaterAPIError: If the Anteater API request fails.
@@ -74,15 +78,22 @@ def get_courses(
         keep_columns.append("prerequisiteText")
 
     if ids:
-        courses = []
-        for course_id in ids:
-            try:
-                data = client.get_course_by_id(id=course_id)
-            except AnteaterAPIError as e:
-                raise AnteaterAPIError(
-                    f"Failed to fetch course by ID {course_id}: {e}"
-                ) from e
-            courses.append({k: v for k, v in data.items() if k in keep_columns})
+        try:
+            data = client.get_courses_batch(ids=ids)
+        except AnteaterAPIError as e:
+            raise AnteaterAPIError(f"Failed to fetch courses by IDs {ids}: {e}") from e
+
+        requested = {normalize_course_code(i) for i in ids}
+        returned = {normalize_course_code(row["id"]) for row in data if row.get("id")}
+        missing = requested - returned
+
+        courses = [{k: v for k, v in row.items() if k in keep_columns} for row in data]
+
+        if missing:
+            return {
+                "data": courses,
+                "warnings": [f"No course found for ID(s): {', '.join(sorted(missing))}"],
+            }
         return courses
 
     try:
